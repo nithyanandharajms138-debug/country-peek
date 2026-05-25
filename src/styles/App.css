@@ -106,3 +106,7 @@
   .country-page__details { grid-template-columns: 1fr; }
   .filter-bar { flex-direction: column; align-items: stretch; }
 }
+
+/* Favourite button */
+.fav-btn { display: inline-block; margin-top: 12px; background: transparent; border: 1px solid var(--input-border); padding: 6px 10px; border-radius: 6px; cursor: pointer; color: var(--text); }
+.fav-btn--saved { background: #b91c1c22; border-color: #b91c1c; color: #b91c1c; }
