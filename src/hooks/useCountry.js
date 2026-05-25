@@ -7,29 +7,48 @@ function useCountry(code) {
 
   useEffect(() => {
     if (!code) {
-      setCountry(null)
-      setLoading(false)
-      setError(null)
+      // defer state resets to avoid synchronous setState inside effect
+      Promise.resolve().then(() => {
+        setCountry(null)
+        setLoading(false)
+        setError(null)
+      })
       return
     }
 
-    setLoading(true)
-    setError(null)
+    let cancelled = false
 
-    fetch(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}`)
-      .then((res) => {
+    ;(async () => {
+      // ensure this runs asynchronously to avoid sync setState in effect
+      await Promise.resolve()
+      if (cancelled) return
+
+      setLoading(true)
+      setError(null)
+
+      try {
+        const res = await fetch(
+          `https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}`,
+        )
         if (!res.ok) throw new Error('Country not found.')
-        return res.json()
-      })
-      .then((data) => {
-        setCountry(data[0] ?? null)
-        setError(null)
-      })
-      .catch((err) => {
-        setCountry(null)
-        setError(err?.message || 'Failed to load country')
-      })
-      .finally(() => setLoading(false))
+        const data = await res.json()
+        if (!cancelled) {
+          setCountry(data[0] ?? null)
+          setError(null)
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setCountry(null)
+          setError(err?.message || 'Failed to load country')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
   }, [code])
 
   return { country, loading, error }

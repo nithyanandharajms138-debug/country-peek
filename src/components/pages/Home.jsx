@@ -10,8 +10,11 @@ function Home() {
 
 	useEffect(() => {
 		if (!query) {
-			setCountries([])
-			setError(null)
+			// defer state resets to avoid synchronous setState inside effect
+			Promise.resolve().then(() => {
+				setCountries([])
+				setError(null)
+			})
 			return
 		}
 
