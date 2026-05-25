@@ -10,10 +10,29 @@ html, body, #root {
 body {
   margin: 0;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a { text-decoration: none; color: inherit; }
+
+/* Theme tokens */
+:root {
+  --bg: #f3f4f6;
+  --text: #111827;
+  --card-bg: #ffffff;
+  --header-bg: #2563eb;
+  --header-text: #ffffff;
+  --input-border: #d1d5db;
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --text: #e6eef8;
+  --card-bg: #0b1220;
+  --header-bg: #0b1220;
+  --header-text: #e6eef8;
+  --input-border: #334155;
+}
