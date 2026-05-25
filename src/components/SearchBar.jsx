@@ -6,7 +6,7 @@ function SearchBar({ query, onQueryChange }) {
 				value={query}
 				onChange={(e) => onQueryChange(e.target.value)}
 				placeholder="Search for a country..."
-				aria-label="Search countries"
+				aria-label="Search for a country"
 			/>
 		</div>
 	)

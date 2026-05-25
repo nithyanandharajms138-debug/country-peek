@@ -12,18 +12,20 @@ function Home() {
 	const [sortBy, setSortBy] = useState('')
 
 	useEffect(() => {
-		if (!query) {
+		const trimmedQuery = query.trim()
+		if (!trimmedQuery) {
 			// defer state resets to avoid synchronous setState inside effect
 			Promise.resolve().then(() => {
 				setCountries([])
 				setError(null)
+				setLoading(false)
 			})
 			return
 		}
 
 		const timer = setTimeout(() => {
 			setLoading(true)
-			fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`)
+			fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(trimmedQuery)}`)
 				.then((res) => {
 					if (!res.ok) throw new Error('No countries found.')
 					return res.json()
@@ -42,6 +44,14 @@ function Home() {
 		return () => clearTimeout(timer)
 	}, [query])
 
+	const displayed = [...countries]
+		.filter((c) => region === 'All' || c.region === region)
+		.sort((a, b) => {
+			if (sortBy === 'name') return a.name.common.localeCompare(b.name.common)
+			if (sortBy === 'population') return b.population - a.population
+			return 0
+		})
+
 	return (
 		<div className="home">
 			<SearchBar query={query} onQueryChange={setQuery} />
@@ -52,23 +62,19 @@ function Home() {
 			{loading && <p className="home__status">Loading...</p>}
 			{error && <p className="home__status home__status--error">{error}</p>}
 
-			{!loading && !error && countries.length > 0 && (
+			{!loading && !error && displayed.length > 0 && (
 				<div className="cards-grid">
-					{(() => {
-						const displayed = [...countries]
-							.filter((c) => region === 'All' || c.region === region)
-							.sort((a, b) => {
-								if (sortBy === 'name') return a.name.common.localeCompare(b.name.common)
-								if (sortBy === 'population') return b.population - a.population
-								return 0
-							})
-
-						return displayed.map((c) => <CountryCard key={c.cca3} country={c} />)
-					})()}
+					{displayed.map((c) => (
+						<CountryCard key={c.cca3} country={c} />
+					))}
 				</div>
 			)}
 
-			{!query && !loading && !error && (
+			{!loading && !error && countries.length > 0 && displayed.length === 0 && (
+				<p className="home__status">No countries found for this region.</p>
+			)}
+
+			{!query.trim() && !loading && !error && (
 				<p className="home__placeholder">Start searching to explore countries.</p>
 			)}
 		</div>
